@@ -43,7 +43,8 @@ class LearningAgent(Agent):
             self.epsilon = 0.0
             self.alpha = 00.0
         else:
-            self.epsilon -= 0.05
+            decayRate = 0.9
+            self.epsilon = self.epsilon * decayRate
         return None
 
     def build_state(self):
@@ -124,11 +125,16 @@ class LearningAgent(Agent):
         if not self.learning:
 
             action = random.choice(self.valid_actions)
-        elif random.random() <= self.epsilon:
+        elif random.random() <= self.epsilon or max(self.Q[state].values()) == 0:
+            # If max q value is 0, i.e. a 'tie', take a random choice
             # with probability epsilon perform a random action. (maybe add that into the above if statement)
             action = random.choice(self.valid_actions)
-            print "Random action chosen:"
+            print "Random action chosen: "
             print action
+            print "Options: "
+            print self.Q[state]
+            print "State"
+            print state
         else:
             #perform proper action
             action = max(self.Q[state], key=self.Q[state].get)
@@ -137,6 +143,8 @@ class LearningAgent(Agent):
             print action
             print "Options: "
             print self.Q[state]
+            print "State"
+            print state
 
         return action
 
@@ -209,7 +217,7 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True)
+    sim = Simulator(env, update_delay=0.01, log_metrics=True, optimized=True)
 
     ##############
     # Run the simulator
