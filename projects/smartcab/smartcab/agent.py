@@ -18,6 +18,7 @@ class LearningAgent(Agent):
         self.Q = dict()          # Create a Q-table which will be a dictionary of tuples
         self.epsilon = epsilon   # Random exploration factor
         self.alpha = alpha       # Learning factor
+        self.trial = 1.0
 
         ###########
         ## TO DO ##
@@ -43,8 +44,36 @@ class LearningAgent(Agent):
             self.epsilon = 0.0
             self.alpha = 00.0
         else:
-            decayRate = 0.9
-            self.epsilon = self.epsilon * decayRate
+            #decayRate = 0.95
+            #self.epsilon = self.epsilon * decayRate
+
+            print "trial"
+            print self.trial
+            print "exponent"
+            decayRate = 0.01
+            print decayRate * self.trial
+
+            # polynomial degree 3
+            #self.epsilon = 1.0 - (decayRate * self.trial) ** 3.0
+
+            #Step function
+
+            if self.trial <= 100:
+                self.epsilon = 1
+            else:
+                self.epsilon = 0
+
+
+            # inverse polynomial
+            #self.epsilon = 1.0 / (self.trial ** 2.0)
+
+            if self.epsilon <= 0:
+                self.epsilon = 0
+            print "Epsilon"
+            print self.epsilon
+            self.trial += 1.0
+
+
         return None
 
     def build_state(self):
@@ -125,26 +154,26 @@ class LearningAgent(Agent):
         if not self.learning:
 
             action = random.choice(self.valid_actions)
-        elif random.random() <= self.epsilon or max(self.Q[state].values()) == 0:
-            # If max q value is 0, i.e. a 'tie', take a random choice
-            # with probability epsilon perform a random action. (maybe add that into the above if statement)
+        elif random.random() <= self.epsilon:
+            # TODO make the agent choose between equal actions when there;s a tie.
+            # with probability epsilon perform a random action.
             action = random.choice(self.valid_actions)
-            print "Random action chosen: "
-            print action
-            print "Options: "
-            print self.Q[state]
-            print "State"
-            print state
+            print "*** Random action chosen *** "
+        elif max(self.Q[state].values()) == 0:
+            # If max q value is 0, i.e. a 'tie', take a random choice
+            max_choices = [k for k,v in self.Q[state].iteritems() if v == 0]
+            action = random.choice(max_choices)
+            print "*** Random action chosen from 0 value options*** "
         else:
             #perform proper action
             action = max(self.Q[state], key=self.Q[state].get)
             print "*** Action chosen ***"
-            print "Action:"
-            print action
-            print "Options: "
-            print self.Q[state]
-            print "State"
-            print state
+        print "Action:"
+        print action
+        print "Options: "
+        print self.Q[state]
+        print "State"
+        print state
 
         return action
 
@@ -217,7 +246,7 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True, optimized=True)
+    sim = Simulator(env, update_delay=0.0, log_metrics=True, optimized=True)
 
     ##############
     # Run the simulator
