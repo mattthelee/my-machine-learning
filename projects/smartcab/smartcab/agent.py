@@ -159,14 +159,11 @@ class LearningAgent(Agent):
             # with probability epsilon perform a random action.
             action = random.choice(self.valid_actions)
             print "*** Random action chosen *** "
-        elif max(self.Q[state].values()) == 0:
-            # If max q value is 0, i.e. a 'tie', take a random choice
-            max_choices = [k for k,v in self.Q[state].iteritems() if v == 0]
-            action = random.choice(max_choices)
-            print "*** Random action chosen from 0 value options*** "
         else:
-            #perform proper action
-            action = max(self.Q[state], key=self.Q[state].get)
+            maxQ = max(self.Q[state].values())
+            # If max q value is 0, i.e. a 'tie', take a random choice
+            max_choices = [k for k,v in self.Q[state].iteritems() if v == maxQ]
+            action = random.choice(max_choices)
             print "*** Action chosen ***"
         print "Action:"
         print action
